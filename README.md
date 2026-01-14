@@ -1,3 +1,5 @@
+The repository is a practice example to work on the Github Workflows and their better understanding.
+
 # Prerequisites
 #
 - JDK 21
