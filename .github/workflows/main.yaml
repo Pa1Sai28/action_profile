@@ -3,13 +3,21 @@ on:
   push:
     branches: 
       - main
+  pull_request:
+        branches:
+        - main
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
 
 jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
       - name: Code checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Maven Build
         run: mvn install
@@ -20,7 +28,7 @@ jobs:
     needs: Build
     steps:
       - name: Code checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run tests on main branch
         run: mvn test
