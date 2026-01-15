@@ -12,6 +12,9 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Runs every Sunday at midnight
 
+permissions:
+    contents: read
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -22,6 +25,16 @@ jobs:
       - name: Maven Build
         run: mvn install
 
+      - name: upload build artifacts (WAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: vprofile-app
+          path: target/*.war
+
+      - name: Notify Build Status
+        if: failure()
+        run: echo "Build failed!"
+        
 
   Testing:
     runs-on: ubuntu-latest
