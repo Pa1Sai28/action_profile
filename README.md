@@ -1,21 +1,83 @@
-This repository implements a robust, automated CI/CD pipeline using GitHub Actions, Maven, Trivy, and Amazon ECR. It ensures every change is built, tested, scanned for security vulnerabilities, and deployed as a containerized image to AWS.
-🛠 Workflow Overview
-The pipeline, named "Build Job," is triggered on:
-Push & Pull Requests: Targeting the main branch.
-Manual Trigger: via workflow_dispatch.
-Scheduled: Every Sunday at midnight (UTC) for routine health checks.
-🏗 Pipeline Stages (Jobs)
+🚀 CI/CD Pipeline for pa1sai-appimage
+
+This repository uses GitHub Actions to automate the build, test, security scan, and deployment of a Java-based application to Amazon Elastic Container Registry (ECR). Everything runs securely and efficiently—ensuring high-quality, production-ready container images.
+
+🔧 What This Pipeline Does
+
+✅ Build
+
+Triggered on every push to main, pull requests to main, manual runs, or weekly (Sundays at midnight).
+Compiles the project with Maven (mvn install).
+Uploads the resulting .war file as a build artifact.
+🧪 Testing
+
+Runs unit tests and Checkstyle validation only on the main branch.
+Ensures code quality before proceeding to deployment.
+🛡️ Security Scan
+
+Uses Trivy to scan the codebase for OS and library vulnerabilities.
+Saves detailed scan results as a downloadable artifact (trivy-results.json).
+🐳 Build & Publish to ECR
+
+Builds a Docker image using a multi-stage Dockerfile for minimal size.
+Pushes the image to Amazon ECR tagged with the Git commit SHA:
+<your-ecr-registry>/pa1sai-appimage:<commit-sha>
+Only runs on the main branch and after all prior jobs succeed.
+Uses GitHub Environments for production safety.
+🌐 Tech Stack
+
+
+Component
+Tool
 Build
-Checks out the code using actions/checkout.
-Compiles the Java application using Maven (mvn install).
-Uploads the resulting .war file as a GitHub artifact named vprofile-app.
-Testing
-Runs unit tests (mvn test) and static code analysis (mvn checkstyle:checkstyle).
-Note: Testing logic is strictly enforced for the main branch to maintain stability.
-Security_scan
-Performs a filesystem vulnerability scan using the Aquasecurity Trivy Action.
-Generates a trivy-results.json report and uploads it as an artifact for audit compliance.
-BUILD_AND_PUBLISH (Deployment)
-Environment: Production.
-Auth: Securely connects to AWS via OIDC/Secrets.
-Action: Builds a multi-stage Docker image, tags it with the unique github.sha, and pushes it to your Amazon ECR repository (pa1sai-appimage).
+Apache Maven
+CI/CD
+GitHub Actions
+Containerization
+Docker (Multi-stage)
+Registry
+Amazon ECR
+Security
+Trivy (by Aqua Security)
+Cloud
+AWS
+🛠️ How to Use This Setup in Your Project
+
+Want to replicate this pipeline? Follow these steps:
+
+1. Prerequisites
+
+A Maven-based Java project that produces a .war file.
+A Dockerfile (e.g., in Docker-files/app/multistage/Dockerfile).
+An AWS account with ECR access.
+2. Set Up GitHub Secrets & Variables
+
+Go to Settings > Secrets and variables > Actions and add:
+
+Secrets:
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+Variables:
+AWS_REGION (e.g., us-east-1)
+🔒 Best Practice: Use an IAM user with least-privilege permissions for ECR push.
+3. Create ECR Repository
+
+bash
+
+
+1
+aws ecr create-repository --repository-name pa1sai-appimage --region YOUR_REGION
+
+4. Add the Workflow
+
+Save the workflow YAML as .github/workflows/ci-cd.yml in your repo.
+
+5. Customize Paths
+
+Adjust the Dockerfile path if needed.
+Ensure your Maven build outputs to target/*.war.
+6. Optional Enhancements
+
+Enable testing on all branches (update conditionals).
+Replace AWS keys with OIDC federation for better security.
+Add notifications (Slack, email) on failure.
